@@ -1,0 +1,162 @@
+@import "tailwindcss";
+
+/* Colours and fonts come from src/config/portfolio.ts — main.tsx writes
+   them onto :root, and these utilities read them. */
+@theme inline {
+  --color-accent: var(--accent);
+  --color-accent-deep: var(--accent-deep);
+  --color-ink: var(--ink);
+  --color-surface: var(--surface);
+  --font-display: var(--font-display), "Bebas Neue", Impact, sans-serif;
+  --font-sans: var(--font-body), Helvetica, Arial, sans-serif;
+  --font-serif: var(--font-serif-family), Georgia, serif;
+  --color-match: var(--match);
+}
+
+:root {
+  --accent: #e50914;
+  --accent-deep: #b20710;
+  --ink: #141414;
+  --surface: #181818;
+  --match: #46d369;
+  color-scheme: dark;
+}
+
+html {
+  background: var(--ink);
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
+}
+
+body {
+  margin: 0;
+  background: var(--ink);
+  color: #fff;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* Dialogs take focus when they open; that shouldn't draw a ring round them */
+[tabindex="-1"]:focus-visible {
+  outline: none;
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hollow numerals for the Top row */
+.numeral {
+  color: var(--ink);
+  -webkit-text-stroke: 4px #595959;
+  paint-order: stroke fill;
+  font-family: "Arial Black", "Helvetica Neue", Arial, sans-serif;
+  font-weight: 900;
+  letter-spacing: -0.06em;
+}
+
+/* Netflix-style row widths: 6 cards on big screens down to 2 on phones,
+   with a sliver of the next card peeking in. */
+.row-card {
+  width: calc((100vw - 8vw) / 2.15);
+}
+@media (min-width: 500px) { .row-card { width: calc((100vw - 8vw) / 3.15); } }
+@media (min-width: 800px) { .row-card { width: calc((100vw - 8vw) / 4.15); } }
+@media (min-width: 1100px) { .row-card { width: calc((100vw - 8vw) / 5.15); } }
+@media (min-width: 1400px) { .row-card { width: calc((100vw - 8vw) / 6.15); } }
+
+.gutter {
+  padding-left: 4%;
+  padding-right: 4%;
+}
+
+/* Film grain over the whole page — a single tiny SVG noise tile */
+.grain::after {
+  content: "";
+  position: fixed;
+  inset: -50%;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: grain 1.2s steps(6) infinite;
+}
+
+@keyframes grain {
+  0% { transform: translate(0, 0); }
+  20% { transform: translate(-3%, 2%); }
+  40% { transform: translate(2%, -3%); }
+  60% { transform: translate(-2%, -1%); }
+  80% { transform: translate(3%, 3%); }
+  100% { transform: translate(0, 0); }
+}
+
+@keyframes drift {
+  from { transform: translate3d(-4%, 0, 0) scale(1.05); }
+  to { transform: translate3d(4%, -2%, 0) scale(1.12); }
+}
+
+@keyframes sweep {
+  from { transform: translateX(-120%); }
+  to { transform: translateX(120%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .grain::after { animation: none; }
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* Wider cards for text-heavy rows (reviews, coming soon) */
+.row-card-wide {
+  width: 84vw;
+}
+@media (min-width: 500px) { .row-card-wide { width: calc((100vw - 8vw) / 2.15); } }
+@media (min-width: 1100px) { .row-card-wide { width: calc((100vw - 8vw) / 3.15); } }
+
+/* The custom cursor replaces the system one on mouse and trackpad */
+html.custom-cursor,
+html.custom-cursor * {
+  cursor: none !important;
+}
+
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+/* Print / Save as PDF from The Full Story prints just the sheet */
+@media print {
+  @page { margin: 12mm; }
+  body * { visibility: hidden !important; }
+  #story-sheet, #story-sheet * { visibility: visible !important; }
+  #story-sheet { position: absolute; inset: 0 auto auto 0; width: 100%; margin: 0; transform: none !important; opacity: 1 !important; background: #fff !important; box-shadow: none !important; }
+  #story-sheet * { color: #111 !important; border-color: #ccc !important; background: transparent !important; text-shadow: none !important; }
+  #story-sheet h4 { color: #b20710 !important; }
+  .grain::after { display: none; }
+}
